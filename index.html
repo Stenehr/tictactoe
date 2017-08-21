@@ -4,11 +4,13 @@
         <title></title>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
         <link href="style.css" rel="stylesheet">
     </head>
     <body>
         
         <div class="container">
+
             <div id="welcomeContainer">
                 <h2 id="title">Welcome</h2>
                 <div id="XorO">
@@ -17,9 +19,10 @@
                     <button id="O" value="O">O</button>
                 </div>
                 <h2 id="playAgainMsg"></h2>
-                <button id="playAgain">Yes</button>
-                <button id="playAgainNo">No</button>
+                <button id="playAgain"><i class="fa fa-thumbs-up" aria-hidden="true"></i></button>
+                <button id="playAgainNo"><i class="fa fa-thumbs-down" aria-hidden="true"></i></button>
             </div>
+
             <div class='innerContainer'>
                 <div class="square" value="0"></div>
                 <div class="square" value="1"></div>
@@ -33,7 +36,8 @@
                 <div class="square" value="7"></div>
                 <div class="square" value="8"></div>
             </div>
-        </div>
+
+        </div> <!-- ./container -->
 
     <script src="final.js"></script>
     </body>

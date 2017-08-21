@@ -143,10 +143,12 @@ var Game = {
         var playAgainBtn = document.querySelector('#playAgain');
         var playAgainNoBtn = document.querySelector('#playAgainNo');
 
+        // Choosing the X button at the beginning
         xBtn.addEventListener('click', function () {
             this.afterLetterChoosing('X');
         }.bind(this))
 
+        // Choosing the O button at the beginning
         oBtn.addEventListener('click', function () {
             this.afterLetterChoosing('O');
         }.bind(this));
@@ -157,6 +159,9 @@ var Game = {
             window.location.reload();
         });
     },
+    /**
+     * If game has ended setup for a new game if the player chooses "Play again"
+     */
     playAgain: function () {
         this.gameBoard = ['', '', '', '', '', '', '', '', '',];
         this.afterLetterChoosing(this.playerSymbol);
@@ -205,10 +210,10 @@ var Game = {
                     return;
                 }
 
-                // Player plays first
+                // Player makes his move
                 this.playerTurn(moveIndex);
                 // after .5secs computer makes its decision
-                this.computerTurn(500);     
+                this.computerTurn(400);     
 
             }.bind(this));
         }
@@ -233,7 +238,11 @@ var Game = {
         }
         
     },
-    computerTurn: function (waitAmount) {
+    /**
+     * Computer calculated move
+     * @param {Integer} waitInMilliSeconds Computer wait time before it reacts - looks more natural
+     */
+    computerTurn: function (waitInMilliSeconds) {
         setTimeout( function () {
             move = utils.getComputerMove(this.gameBoard, this.computerSymbol, this.playerSymbol);
             utils.makeMove(this.gameBoard, this.computerSymbol, move);
@@ -241,7 +250,7 @@ var Game = {
     
             if (utils.isWinner(this.gameBoard, this.computerSymbol)) {
                 setTimeout(function () {
-                    this.onGameOver("Sorry, the computer won");
+                    this.onGameOver("Sorry, you lost");
                 }.bind(this), 500);
                 
             } else {
@@ -251,8 +260,12 @@ var Game = {
                     }.bind(this), 500);
                 }
             }
-        }.bind(this), waitAmount )
+        }.bind(this), waitInMilliSeconds )
     },
+    /**
+     * Plays the game ended screen to the user
+     * @param {String} status Messge to be showed to the user
+     */
     onGameOver: function (status) {
         var welcomeContainer = document.querySelector('#welcomeContainer');
         var welcomeMessageTitle = document.querySelector('#title');
@@ -260,7 +273,7 @@ var Game = {
         var playAgainNoBtn = document.querySelector('#playAgainNo');
         var playAgainMsg = document.querySelector('#playAgainMsg');
 
-        welcomeContainer.style.backgroundColor = 'rgba(70, 33, 26, .9)'
+        welcomeContainer.style.backgroundColor = 'rgba(26, 166, 135, .97)'
         welcomeContainer.style.display = 'block';
         welcomeMessageTitle.textContent = status;
         
@@ -273,172 +286,3 @@ var Game = {
 }
 Game.init();
 
-// Game.gamePlay();
-
-// gamePlay: function (userChoice) {
-//     var move;
-//     this.gamePlaying = true;
-
-//     while(this.gamePlaying) {
-//         var exitPlayerMove = false;
-//         move = undefined;
-
-//         if (this.turn === 'player') {
-//             this.renderView();
-//             while(move === undefined) {
-//                 move = this.getUserMove();
-//             }
-
-//             move = utils.getPlayerMove(this.gameBoard, move);
-            
-//             utils.makeMove(this.gameBoard, this.playerSymbol, move);
-//             this.renderView();
-
-//             if (utils.isWinner(this.gameBoard, this.playerSymbol)) {
-//                 alert("Hurray you won!");
-//                 this.gamePlaying = false;
-//             } else {
-//                 if (utils.isBoardFull(this.gameBoard)) {
-//                     alert("Its a tie!");
-//                     break;
-//                 } else {
-//                     this.turn = 'computer';
-//                 }
-//             }
-//         } else {
-//             move = utils.getComputerMove(this.gameBoard, this.computerSymbol, this.playerSymbol);
-//             utils.makeMove(this.gameBoard, this.computerSymbol, move);
-//             this.renderView();
-
-//             if (utils.isWinner(this.gameBoard, this.computerSymbol)) {
-//                 alert("The computer won! You lost.")
-//                 this.gamePlaying = false;
-//             } else {
-//                 if (utils.isBoardFull(this.gameBoard)) {
-//                     alert("The game is a tie!");
-//                     break;
-//                 } else {
-//                     this.turn = 'player';
-//                 }
-//             }
-//         }
-//     }
-// }
-
-// // Checks if the move is free and returns the index of the move
-// function getPlayerMove(board, move) {
-
-//     if (isSpaceFree(board, move)) {
-//         return move;
-//     }
-// }
-
-// // Adds a move to the gameboard
-// function makeMove(board, letter, move) {
-//     board[move] = letter;
-// }
-
-
-// function isWinner(bo, le) {
-//     // Given a board && a player’s letter, this function returns True if that player has won.
-//     // We use bo instead of board && le instead of letter so we don’t have to type as much.
-//     return ((bo[7] == le && bo[8] == le && bo[9] == le) ||
-//             (bo[4] == le && bo[5] == le && bo[6] == le) || 
-//             (bo[1] == le && bo[2] == le && bo[3] == le) ||
-//             (bo[7] == le && bo[4] == le && bo[1] == le) ||
-//             (bo[8] == le && bo[5] == le && bo[2] == le) ||
-//             (bo[9] == le && bo[6] == le && bo[3] == le) ||
-//             (bo[7] == le && bo[5] == le && bo[3] == le) ||
-//             (bo[9] == le && bo[5] == le && bo[1] == le));
-// }
-
-// // Makes a copy of the gameboard
-// function makeBoardCopy(board) {
-//     var dupeBoard = [];
-
-//     for (var i = 0; i < board.length; i++) {
-//         dupeBoard[i] = board[i];
-//     }
-//     return dupeBoard;
-// }
-
-// // Checks if the place on the gameboard is free
-// function isSpaceFree(board, move) {
-//     return board[move] == '';
-// }
-
-// /**
-//  * Chooses a random free index from the moveList
-//  * @param {Array} board {game board}
-//  * @param {Array} moveList {a list of move indexes to consider e.g. [1, 4, 7]} 
-//  * @returns 
-//  */
-// function chooseRandomNumberFromList(board, moveList) {
-//     var possibleMoves = moveList.filter(function (elem) {
-//         return isSpaceFree(board, elem);
-//     });
-    
-//     if (possibleMoves.length > 0) {
-//         randomIndex = Math.floor(Math.random() * (possibleMoves.length - 1));
-//         return possibleMoves[randomIndex];
-//     } else {
-//         return 'None';
-//     }
-// }
-
-// function getComputerMove(board, computerLetter) {
-//     var playerLetter;
-//     var copy;
-//     var move;
-
-//     if (computerLetter === 'X') {
-//         playerLetter = 'O';
-//     } else {
-//         playerLetter = 'X';
-//     }
-
-//     // Check if the computer can win with the next move
-//     for (var i = 0; i < 10; i++) {
-//         copy = makeBoardCopy(board);
-//         if (isSpaceFree(copy, i)) {
-//             makeMove(copy, computerLetter, i)
-//             if (isWinner(copy, computerLetter)) {
-//                 return i;
-//             }
-//         }
-//     }
-//     // Check if the player can win with next move
-//     for (var j = 0; j < 10; j++) {
-//         copy = makeBoardCopy(board);
-//         if (isSpaceFree(copy, i)) {
-//             makeMove(copy, playerLetter);
-//             if (isWinner(copy, playerLetter)) {
-//                 return i;
-//             }
-//         }
-//     }
-
-//     // Try to take a corner if their free
-//     move = chooseRandomNumberFromList(board, [0, 2, 6, 8]);
-//     if (move === 'None') {
-//         return move;
-//     }
-
-//     // Try to take the middle
-//     if (isSpaceFree(board, 5)) {
-//         return 5;
-//     }
-
-//     // Just take one of the sides
-//     return chooseRandomNumberFromList(board, [1, 3, 5, 7]);
-// }
-
-// // Check if the board is full
-// function isBoardFull(board) {
-//     for (var i = 0; i < 10; i++) {
-//         if (isSpaceFree(board, i)) {
-//             return false;
-//         }
-//     }
-//     return true;
-// }
