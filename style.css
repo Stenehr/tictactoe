@@ -60,6 +60,10 @@ button {
     /* box-shadow: 1px 1px 3px #DAECF3; */
 }
 
+button:hover {
+    cursor: pointer;
+}
+
 button:active {
     position: relative;
     top: 1px;
@@ -104,6 +108,14 @@ button:active {
     vertical-align: middle;
     font-size: 80px;
     color: #fff;
+}
+
+.square:hover {
+    cursor: pointer;
+}
+
+.winPattern {
+    color: #FE424D;
 }
 
 

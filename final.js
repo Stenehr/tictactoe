@@ -22,18 +22,37 @@ var utils = {
     isWinner: function(bo, le) {
         // Given a board && a player’s letter, this function returns True if that player has won.
         // We use bo instead of board && le instead of letter so we don’t have to type as much.
-       if ((bo[6] == le && bo[7] == le && bo[8] == le) ||
-                (bo[3] == le && bo[4] == le && bo[5] == le) || 
-                (bo[0] == le && bo[1] == le && bo[2] == le) ||
-                (bo[6] == le && bo[3] == le && bo[0] == le) ||
-                (bo[7] == le && bo[4] == le && bo[1] == le) ||
-                (bo[8] == le && bo[5] == le && bo[2] == le) ||
-                (bo[6] == le && bo[4] == le && bo[2] == le) ||
-                (bo[8] == le && bo[4] == le && bo[0] == le)) {
-            return true;
-        } else {
-            return false;
-        }
+        var w = false;
+        var wp = [];
+        if (bo[6] == le && bo[7] == le && bo[8] == le) {
+            w = true;
+            wp = [6, 7, 8];
+        } else if (bo[3] == le && bo[4] == le && bo[5] == le) {
+            w = true;
+            wp = [3, 4, 5];
+        } else if (bo[0] == le && bo[1] == le && bo[2] == le) {
+            w = true;
+            wp = [0, 1, 2];
+        } else if (bo[6] == le && bo[3] == le && bo[0] == le) {
+            w = true;
+            wp = [6, 3, 0];
+        } else if (bo[7] == le && bo[4] == le && bo[1] == le) {
+            w = true;
+            wp = [7, 4, 1];
+        } else if (bo[8] == le && bo[5] == le && bo[2] == le) {
+            w = true;
+            wp = [8, 5, 2];
+        } else if (bo[6] == le && bo[4] == le && bo[2] == le) {
+            w = true;
+            wp = [6, 4, 2];
+        } else if (bo[8] == le && bo[4] == le && bo[0] == le) {
+            w = true;
+            wp = [8, 4, 0];
+        } 
+        return {
+            win: w,
+            winPattern: wp
+        };
     },
     // Makes a copy of the gameboard
     makeBoardCopy: function (board) {
@@ -86,7 +105,7 @@ var utils = {
             copy = this.makeBoardCopy(board);
             if (this.isSpaceFree(copy, i)) {
                 this.makeMove(copy, computerLetter, i)
-                if (this.isWinner(copy, computerLetter)) {
+                if (this.isWinner(copy, computerLetter).win) {
                     return i;
                 }
             }
@@ -96,7 +115,7 @@ var utils = {
             copy = this.makeBoardCopy(board);
             if (this.isSpaceFree(copy, j)) {
                 this.makeMove(copy, playerLetter, j);
-                if (this.isWinner(copy, playerLetter)) {
+                if (this.isWinner(copy, playerLetter).win) {
                     return j;
                 }
             }
@@ -131,7 +150,6 @@ var Game = {
     gameBoard: ['', '', '', '', '', '', '', '', '',],
     playerSymbol: 'X',
     computerSymbol: 'Y',
-    gamePlaying: false,
     gameStatus: '',
     init: function () {
         this.bindEvents();
@@ -145,12 +163,12 @@ var Game = {
 
         // Choosing the X button at the beginning
         xBtn.addEventListener('click', function () {
-            this.afterLetterChoosing('X');
+            this.chooseLetter('X');
         }.bind(this))
 
         // Choosing the O button at the beginning
         oBtn.addEventListener('click', function () {
-            this.afterLetterChoosing('O');
+            this.chooseLetter('O');
         }.bind(this));
 
         playAgainBtn.addEventListener('click', this.playAgain.bind(this));
@@ -163,15 +181,23 @@ var Game = {
      * If game has ended setup for a new game if the player chooses "Play again"
      */
     playAgain: function () {
+        var playFieldButtons = document.querySelectorAll('.square');
+
+        // Remove the red color from the winning pattern
+        for (var i = 0; i < playFieldButtons.length; i++) {
+            playFieldButtons[i].classList.remove('winPattern');
+        }
+
         this.gameBoard = ['', '', '', '', '', '', '', '', '',];
-        this.afterLetterChoosing(this.playerSymbol);
+        // Keep the player letter the same
+        this.chooseLetter(this.playerSymbol);
         this.gamePlay();
     },
     /**
      * Actions to be done after the player has chosen a letter
      * @param {String} playerChosenLetter
      */
-    afterLetterChoosing: function (playerChosenLetter) {
+    chooseLetter: function (playerChosenLetter) {
         var XorOdisplay = document.querySelector('#XorO');
         var welcomeContainer = document.querySelector('#welcomeContainer');
         var welcomeMessageTitle = document.querySelector('#title');
@@ -190,6 +216,10 @@ var Game = {
         }, 500);
         this.computerTurn(100);
     },
+    /**
+     * Grid view
+     * Display X's and O's
+     */
     renderView: function () {
         var spaces = document.querySelectorAll('.square');
 
@@ -197,12 +227,13 @@ var Game = {
             spaces[i].textContent = this.gameBoard[i];
         }
     },
-    // Loop throught the buttons and add a click event
-    // that will trigger the gameplay 
+    /**
+     * Respond to youser clicks on the grid
+     */
     gamePlay: function () {
-        var playFieldsButton = document.querySelectorAll('.square');
-        for (var i = 0; i < playFieldsButton.length; i++ ) {
-            playFieldsButton[i].addEventListener('click', function (event) {
+        var playFieldButtons = document.querySelectorAll('.square');
+        for (var i = 0; i < playFieldButtons.length; i++ ) {
+            playFieldButtons[i].addEventListener('click', function (event) {
 
                 // If the spot is already occupied return;
                 var moveIndex = Number(event.target.getAttribute('value'));
@@ -219,16 +250,20 @@ var Game = {
         }
     },
     playerTurn: function (userMoveIndex) {
+        var checkWin;
+
         this.renderView();
         
         move = utils.getPlayerMove(this.gameBoard, userMoveIndex);
         utils.makeMove(this.gameBoard, this.playerSymbol, userMoveIndex);
         this.renderView();
 
-        if (utils.isWinner(this.gameBoard, this.playerSymbol)) {
+        checkWin = utils.isWinner(this.gameBoard, this.playerSymbol);
+        if (checkWin.win) {
+            this.addLineThroughWinningPattern(checkWin.winPattern);
             setTimeout(function () {
                 this.onGameOver("Congratulations you won!");
-            }.bind(this), 500);
+            }.bind(this), 800);
         } else {
             if (utils.isBoardFull(this.gameBoard)) {
                 setTimeout(function () {
@@ -243,15 +278,19 @@ var Game = {
      * @param {Integer} waitInMilliSeconds Computer wait time before it reacts - looks more natural
      */
     computerTurn: function (waitInMilliSeconds) {
+        var checkWin;
+
         setTimeout( function () {
             move = utils.getComputerMove(this.gameBoard, this.computerSymbol, this.playerSymbol);
             utils.makeMove(this.gameBoard, this.computerSymbol, move);
             this.renderView();
-    
-            if (utils.isWinner(this.gameBoard, this.computerSymbol)) {
+            
+            checkWin = utils.isWinner(this.gameBoard, this.computerSymbol);
+            if (checkWin.win) {
+                this.addLineThroughWinningPattern(checkWin.winPattern);
                 setTimeout(function () {
                     this.onGameOver("Sorry, you lost");
-                }.bind(this), 500);
+                }.bind(this), 800);
                 
             } else {
                 if (utils.isBoardFull(this.gameBoard)) {
@@ -282,6 +321,21 @@ var Game = {
         playAgainBtn.style.display = "initial";
         playAgainNoBtn.style.display = "initial";
 
+    },
+    /**
+     * Add a red color to the winning pattern
+     * @param {[]} pattern 
+     */
+    addLineThroughWinningPattern (pattern) {
+        var playFieldButtons = document.querySelectorAll('.square');
+
+        for (var i = 0; i < playFieldButtons.length; i++) {
+            for (var j = 0; j < pattern.length; j++) {
+                if (i === pattern[j]) {
+                    playFieldButtons[i].classList.add('winPattern');
+                }
+            }
+        }
     }
 }
 Game.init();
